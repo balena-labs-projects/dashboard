@@ -1,0 +1,106 @@
+{
+    "aliasColors": {},
+    "bars": false,
+    "dashLength": 10,
+    "dashes": false,
+    "datasource": null,
+    "fieldConfig": {
+      "defaults": {
+        "custom": {}
+      },
+      "overrides": []
+    },
+    "fill": 2,
+    "fillGradient": 0,
+    "gridPos": {
+      "h": 7,
+      "w": 17,
+      "x": 7,
+      "y": 0
+    },
+    "hiddenSeries": false,
+    "id": null,
+    "legend": {
+      "avg": false,
+      "current": false,
+      "max": false,
+      "min": false,
+      "show": false,
+      "total": false,
+      "values": false
+    },
+    "lines": true,
+    "linewidth": 2,
+    "nullPointMode": "null",
+    "percentage": false,
+    "pluginVersion": "7.1.1",
+    "pointradius": 2,
+    "points": false,
+    "renderer": "flot",
+    "seriesOverrides": [],
+    "spaceLength": 10,
+    "stack": false,
+    "steppedLine": false,
+    "targets": [
+      {
+        "alias": "",
+        "groupBy": [],
+        "measurement": "",
+        "orderByTime": "ASC",
+        "policy": "default",
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [
+            {
+              "params": [
+                ""
+              ],
+              "type": "field"
+            }
+          ]
+        ],
+        "tags": []
+      }
+    ],
+    "thresholds": [],
+    "timeFrom": null,
+    "timeRegions": [],
+    "timeShift": null,
+    "title": "",
+    "tooltip": {
+      "shared": true,
+      "sort": 0,
+      "value_type": "individual"
+    },
+    "type": "graph",
+    "xaxis": {
+      "buckets": null,
+      "mode": "time",
+      "name": null,
+      "show": true,
+      "values": []
+    },
+    "yaxes": [
+      {
+        "format": "short",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true
+      },
+      {
+        "format": "short",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true
+      }
+    ],
+    "yaxis": {
+      "align": false,
+      "alignLevel": null
+    }
+  }

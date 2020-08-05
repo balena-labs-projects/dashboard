@@ -1,0 +1,68 @@
+{
+    "datasource": null,
+    "fieldConfig": {
+    "defaults": {
+        "custom": {},
+        "mappings": [],
+        "thresholds": {
+        "mode": "absolute",
+        "steps": [
+            {
+            "color": "green",
+            "value": null
+            }
+        ]
+        }
+    },
+    "overrides": []
+    },
+    "gridPos": {
+    "h": 7,
+    "w": 7,
+    "x": 0,
+    "y": 0
+    },
+    "id": null,
+    "options": {
+    "reduceOptions": {
+        "calcs": [
+        "mean"
+        ],
+        "fields": "",
+        "values": false
+    },
+    "showThresholdLabels": false,
+    "showThresholdMarkers": true
+    },
+    "pluginVersion": "7.1.1",
+    "targets": [
+    {
+        "alias": "",
+        "groupBy": [],
+        "measurement": "",
+        "orderByTime": "ASC",
+        "policy": "default",
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+        [
+            {
+            "params": [
+                ""
+            ],
+            "type": "field"
+            },
+            {
+            "params": [],
+            "type": "last"
+            }
+        ]
+        ],
+        "tags": []
+    }
+    ],
+    "timeFrom": null,
+    "timeShift": null,
+    "title": "",
+    "type": "gauge"
+}
