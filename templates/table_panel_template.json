@@ -37,7 +37,7 @@
     "targets": [
       {
         "groupBy": [],
-        "measurement": "balena-sense",
+        "measurement": "",
         "orderByTime": "ASC",
         "policy": "default",
         "refId": "A",
@@ -49,12 +49,6 @@
                 "string_test"
               ],
               "type": "field"
-            },
-            {
-              "params": [
-                "String Test"
-              ],
-              "type": "alias"
             }
           ]
         ],

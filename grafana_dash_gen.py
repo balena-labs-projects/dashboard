@@ -125,7 +125,9 @@ class GrafanaDashGen():
 
     def load_history(self):
         # Load the history from the file on disk and parse it into the class instance
-        with open(self.history_file, 'r+') as history:
+        with open(self.history_file, 'a+') as history:
+            history.seek(0)
+            
             try:
                 self.history = json.load(history)
             except json.decoder.JSONDecodeError:
@@ -254,4 +256,3 @@ class GrafanaDashGen():
             pass
 
         return False
-        
