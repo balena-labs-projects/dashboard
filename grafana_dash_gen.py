@@ -8,8 +8,8 @@ import base64
 
 class GrafanaDashGen():
     grafana_url = "localhost:"+os.environ['GF_SERVER_HTTP_PORT']
-    api_key_file = "/data/grafana_api_key"
-    history_file = "/data/field_history.json"
+    api_key_file = os.environ['GF_PATHS_DATA'] + "/grafana_api_key"
+    history_file = os.environ['GF_PATHS_DATA'] + "/field_history.json"
     dashboard = None
     current_id = None
     row = None
@@ -127,7 +127,7 @@ class GrafanaDashGen():
         # Load the history from the file on disk and parse it into the class instance
         with open(self.history_file, 'a+') as history:
             history.seek(0)
-            
+
             try:
                 self.history = json.load(history)
             except json.decoder.JSONDecodeError:
