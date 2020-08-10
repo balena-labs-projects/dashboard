@@ -1,0 +1,51 @@
+{
+    "type": "table",
+    "title": "",
+    "gridPos": {
+      "x": 0,
+      "y": 0,
+      "w": 24,
+      "h": 8
+    },
+    "id": null,
+    "targets": [
+      {
+        "refId": "A",
+        "policy": "default",
+        "resultFormat": "table",
+        "orderByTime": "ASC",
+        "tags": [],
+        "groupBy": [],
+        "select": [
+          [
+            {
+              "type": "field",
+              "params": [
+                "*"
+              ]
+            }
+          ]
+        ],
+        "measurement": ""
+      }
+    ],
+    "options": {
+      "showHeader": true
+    },
+    "pluginVersion": "7.1.1",
+    "timeFrom": null,
+    "timeShift": null,
+    "transformations": [
+      {
+        "id": "reduce",
+        "options": {
+          "reducers": [
+            "last",
+            "min",
+            "max"
+          ]
+        }
+      }
+    ],
+    "datasource": null
+  }

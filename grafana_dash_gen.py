@@ -164,15 +164,19 @@ class GrafanaDashGen():
         return True
         
 
-    def create_new_dashboard(self, name):
+    def create_new_dashboard(self, measurement):
         with open('templates/dashboard_template.json') as dashboardfile:
             self.dashboard = json.load(dashboardfile)
 
         self.current_id = 1
-        self.dashboard['title'] = stringcase.titlecase(name)
-        self.dashboard['uid'] = name
+        self.dashboard['title'] = stringcase.titlecase(measurement)
+        self.dashboard['uid'] = measurement
 
-        self.history[name] = {}
+        self.history[measurement] = {}
+
+        # With every new dashboard we add a summary panel first
+        self.add_summary_panel_to_dashboard(measurement)
+
 
     def add_field_to_dashboard(self, fieldname, fieldtype, measurement):
         # Take the existing dashboard JSON and inject the appropriate panel JSON
@@ -206,7 +210,22 @@ class GrafanaDashGen():
         self.row['panels'].append(newpanel)
         print('Added panel with ID: ' + str(self.current_id))
 
-    def create_row(self, title):
+
+    def add_summary_panel_to_dashboard(self, measurement):
+        self.create_row("Data summary", False)
+
+        newpanel = self.load_panel('summary')
+        self.current_id = self.current_id + 1
+        newpanel['id'] = self.current_id
+        newpanel['title'] = self.generate_panel_name(measurement)
+        newpanel['targets'][0]['measurement'] = measurement
+
+        self.dashboard['panels'].append(self.row)
+        self.dashboard['panels'].append(newpanel)
+        self.row = None
+
+
+    def create_row(self, title, collapsed = True):
         row = self.load_panel('row')
 
         self.current_id = self.current_id + 1
@@ -215,6 +234,8 @@ class GrafanaDashGen():
 
         if len(self.dashboard['panels']) > 0:
             row['gridPos']['y'] = self.dashboard['panels'][-1]['gridPos']['y'] + 1
+
+        row['collapsed'] = collapsed
 
         self.row = row
 
