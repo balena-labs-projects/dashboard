@@ -190,6 +190,7 @@ class GrafanaDashGen():
             self.add_panel_to_row("stat", fieldname, measurement)
             self.add_panel_to_row("graph", fieldname, measurement)
         elif fieldtype == "string" or fieldtype == "boolean":
+            self.add_panel_to_row("textstat", fieldname, measurement)
             self.add_panel_to_row("table", fieldname, measurement)
 
         self.dashboard['panels'].append(self.row)
@@ -202,14 +203,12 @@ class GrafanaDashGen():
         newpanel['id'] = self.current_id
         newpanel['title'] = self.generate_panel_name(fieldname)
 
-        if paneltype in ['gauge', 'graph', 'stat', 'table']:
+        if paneltype in ['gauge', 'graph', 'stat', 'table', 'textstat']:
             newpanel['targets'][0]['measurement'] = measurement
             newpanel['targets'][0]['alias'] = fieldname
             newpanel['targets'][0]['select'][0][0]['params'][0] = fieldname
 
         self.row['panels'].append(newpanel)
-        print('Added panel with ID: ' + str(self.current_id))
-
 
     def add_summary_panel_to_dashboard(self, measurement):
         self.create_row("Data summary", False)

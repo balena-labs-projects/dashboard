@@ -1,0 +1,70 @@
+{
+    "type": "stat",
+    "title": "",
+    "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 0,
+        "y": 0
+    },
+    "id": null,
+    "targets": [
+      {
+        "refId": "A",
+        "policy": "default",
+        "resultFormat": "table",
+        "orderByTime": "ASC",
+        "tags": [],
+        "groupBy": [],
+        "select": [
+          [
+            {
+              "type": "field",
+              "params": [
+                ""
+              ]
+            },
+            {
+              "type": "last",
+              "params": []
+            }
+          ]
+        ],
+        "measurement": ""
+      }
+    ],
+    "options": {
+      "reduceOptions": {
+        "values": true,
+        "calcs": [
+          "last"
+        ],
+        "fields": "/^last$/"
+      },
+      "orientation": "auto",
+      "textMode": "value",
+      "colorMode": "value",
+      "graphMode": "none",
+      "justifyMode": "auto"
+    },
+    "fieldConfig": {
+      "defaults": {
+        "custom": {},
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "color": "green",
+              "value": null
+            }
+          ]
+        },
+        "mappings": []
+      },
+      "overrides": []
+    },
+    "pluginVersion": "7.1.3",
+    "timeFrom": null,
+    "timeShift": null,
+    "datasource": null
+  }
