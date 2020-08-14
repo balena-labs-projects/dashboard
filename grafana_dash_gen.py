@@ -158,8 +158,8 @@ class GrafanaDashGen():
             return False
             pass
 
-        if len(self.dashboard['panels']) > 0:
-            self.current_id = self.dashboard['panels'][-1]['id']
+        # Here we need to find the highest ID existing in the dashboard in order to increment from there
+        self.current_id = self.get_highest_dashboard_id()
 
         return True
         
@@ -277,3 +277,32 @@ class GrafanaDashGen():
             pass
 
         return False
+
+    def get_highest_dashboard_id(self):
+        id_values = self.get_recursively(self.dashboard, 'id')
+
+        return max(id_values)
+
+    def get_recursively(self, search_dict, field):
+        fields_found = []
+
+        for key, value in search_dict.items():
+
+            if key == field and isinstance(value, int):
+                fields_found.append(value)
+
+            elif isinstance(value, dict):
+                results = self.get_recursively(value, field)
+                for result in results:
+                    if isinstance(result, int):
+                        fields_found.append(result)
+
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, dict):
+                        more_results = self.get_recursively(item, field)
+                        for another_result in more_results:
+                            if isinstance(another_result, int):
+                                fields_found.append(another_result)
+
+        return fields_found

@@ -1,5 +1,5 @@
 #!/bin/sh
-version="7.1.1"
+version="7.1.3"
 outfile="/tmp/grafana.deb"
 download_base="https://dl.grafana.com/oss/release/"
 case $1 in
