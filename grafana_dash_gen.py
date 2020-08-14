@@ -85,19 +85,22 @@ class GrafanaDashGen():
         self.history.pop(data['name'], None)
         self.write_history()
 
-    def sync_dashboard(self, data):
+    def sync_dashboard(self, data, quiet = False):
         # data contains name and values[]['name']['type']
-        print('Synchronizing dashboard for ' + data['name'])
+        if not quiet:
+            print('Synchronizing dashboard for ' + data['name'])
         self.load_history()
 
         if data['name'] in self.history:
             # we've already added this dashboard in the past so just need to add fields that aren't in history
             # load the dashboard from grafana
             if self.load_existing_dashboard(data['name']):
-                print('Loaded existing dashboard: ' + data['name'])
+                if not quiet:
+                    print('Loaded existing dashboard: ' + data['name'])
             else:
                 # we had the dashboard in history but it's not in grafana, so skip
-                print('Could not find previously added dashboard ' + data['name'] + '. Skipping.')
+                if not quiet:
+                    print('Could not find previously added dashboard ' + data['name'] + '. Skipping.')
                 return
         else:
             # this is a new measurement so create a new dashboard for it
@@ -112,7 +115,8 @@ class GrafanaDashGen():
 
             if fieldname in self.history[data['name']]:
                 if self.history[data['name']][fieldname] == 'added':
-                    print('Skipping known field: ' + fieldname)
+                    if not quiet:
+                        print('Skipping known field: ' + fieldname)
                     continue
 
             print('New field found: ' + fieldname + ' (' + fieldtype + ')')

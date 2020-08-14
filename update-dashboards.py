@@ -1,3 +1,4 @@
+import time
 from grafana_dash_gen import GrafanaDashGen
 from get_schema import GetSchema
 import os
@@ -13,4 +14,12 @@ for measurement in get_schema.get_influx_schema():
         
     grafana_dash_gen.sync_dashboard(measurement)
 
-print('Dashboard sync complete, have a nice day.')
+print('Initial dashboard sync complete, have a nice day.')
+
+while 1:
+    time.sleep(10)
+    for measurement in get_schema.get_influx_schema():
+        grafana_dash_gen.sync_dashboard(measurement, quiet = True)
+
+    print('Interim dashboard sync complete.')
+    
