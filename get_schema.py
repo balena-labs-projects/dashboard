@@ -40,7 +40,7 @@ class GetSchema():
             res = urllib.request.urlopen(req, timeout=5).read()
             data = json.loads(res.decode())
             return data['results'][0]['series']
-        except (urllib.error.HTTPError, urllib.error.URLError):
+        except (urllib.error.HTTPError, urllib.error.URLError, KeyError):
             # TODO handle error
             pass
 
