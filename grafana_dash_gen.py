@@ -47,6 +47,26 @@ class GrafanaDashGen():
                 self.apikey = file.read()
         else:
             # If there's no key, try to create one using the default credentials
+
+            # there may be an existing key, but we don't have the keyfile for it
+            # so let's check and delete any existing key first
+            req = urllib.request.Request('http://' + self.grafana_url + '/api/auth/keys')
+            base64string = base64.b64encode(bytes('%s:%s' % ('admin', 'admin'),'ascii'))
+            req.add_header("Authorization", "Basic %s" % base64string.decode('utf-8'))
+            try:
+                res = urllib.request.urlopen(req, timeout=5).read()
+                json_result = json.loads(res.decode())
+                # for each key returned by the API
+                for result in json_result:
+                    if result['name'] == "dashboardapikey":
+                        key = result['id']
+                        # delete the key if it's a dashboard block created one.
+                        req = urllib.request.Request('http://' + self.grafana_url + '/api/auth/keys/' + str(key), method='DELETE')
+                        req.add_header("Authorization", "Basic %s" % base64string.decode('utf-8'))
+                        res = urllib.request.urlopen(req, timeout=5)
+            except(urllib.error.HTTPError, urllib.error.URLError) as ex:
+                print('Failed to find keys with exception: ', ex)
+
             api_key_request = {
                 'name': 'dashboardapikey',
                 'role': 'Admin'
@@ -60,7 +80,6 @@ class GrafanaDashGen():
             req.add_header('Content-Type', 'application/json; charset=utf-8')
             req.add_header('Content-Length', len(jsondatabytes))
 
-            base64string = base64.b64encode(bytes('%s:%s' % ('admin', 'admin'),'ascii'))
             req.add_header("Authorization", "Basic %s" % base64string.decode('utf-8'))
 
             try:
@@ -68,8 +87,9 @@ class GrafanaDashGen():
                 json_result = json.loads(res.decode())
                 if json_result['name'] != "dashboardapikey":
                     return False
-            except (urllib.error.HTTPError, urllib.error.URLError):
+            except (urllib.error.HTTPError, urllib.error.URLError) as ex:
                 print('Could not generate API key (this is bad)')
+                print('Exception: ', ex)
                 return False
 
             self.apikey = json_result['key']
