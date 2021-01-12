@@ -1,14 +1,11 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python
+FROM balenalib/%%BALENA_MACHINE_NAME%%-alpine-python:3-run  
 
 RUN install_packages \
-      libfontconfig1
+      fontconfig
 
 WORKDIR /usr/src/app
-COPY ./download.sh .
-RUN ./download.sh "%%BALENA_ARCH%%"
 
-RUN dpkg -i /tmp/grafana.deb && rm /tmp/grafana.deb
-
+RUN apk add grafana --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 RUN pip install stringcase
 
 COPY ./provisioning /usr/share/grafana/conf/provisioning
