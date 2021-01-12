@@ -15,6 +15,7 @@ if schema != False:
             grafana_dash_gen.clear_history(measurement)
             
         grafana_dash_gen.sync_dashboard(measurement)
+        grafana_dash_gen.default_dashboard()
     print('Initial dashboard sync complete, have a nice day.')
 else:
     print('Initial dashboard sync skipped: No schema found.')
@@ -25,7 +26,7 @@ while 1:
     if schema != False:
         for measurement in schema:
             grafana_dash_gen.sync_dashboard(measurement, quiet = True)
-
+        grafana_dash_gen.default_dashboard()
         print('Interim dashboard sync complete.')
     else:
         print('Interim dashboard sync skipped: No schema found.')
