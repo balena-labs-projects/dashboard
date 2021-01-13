@@ -10,6 +10,8 @@ class GrafanaDashGen():
     grafana_url = "localhost:"+os.environ['GF_SERVER_HTTP_PORT']
     api_key_file = os.environ['GF_PATHS_DATA'] + "/grafana_api_key"
     history_file = os.environ['GF_PATHS_DATA'] + "/field_history.json"
+    reports_directory = "/usr/share/grafana/conf/provisioning/dashboards"
+    generated_tag = "generated"
     dashboard = None
     current_id = None
     row = None
@@ -195,6 +197,7 @@ class GrafanaDashGen():
         self.current_id = 1
         self.dashboard['title'] = stringcase.titlecase(measurement)
         self.dashboard['uid'] = measurement
+        self.dashboard['tags'] = [self.generated_tag]
 
         self.history[measurement] = {}
 
@@ -329,3 +332,112 @@ class GrafanaDashGen():
                                 fields_found.append(another_result)
 
         return fields_found
+
+    def get_provisioning_dash(self):
+        # Returns id of first json file in reports_diretory or
+        # id of default.json file if it exists, otherwise 0
+        found_file = "none"
+        list_dir = os.listdir(self.reports_directory)
+        list_dir = [f.lower() for f in list_dir]
+        list_dir = sorted(list_dir)
+        count = 0
+        for filename in list_dir:
+            if filename.endswith(".json"):
+                count = count + 1
+                if count == 1:
+                    # This is the first json file
+                    found_file = filename
+                if filename == "default.json":
+                    found_file = filename
+                    continue
+
+        return_id = 0
+        if found_file != "none":
+            # Get uid from file
+            found_file = open(self.reports_directory + "/" + found_file)
+            report_json = json.loads(found_file.read())
+            found_file.close()
+            found_file = report_json["uid"]
+            # Find matching uid in grafana and get id
+            req = urllib.request.Request('http://' + self.grafana_url + '/api/search?query=%')
+            res = urllib.request.urlopen(req, timeout=5).read()
+            data = json.loads(res.decode())
+            for result in data:
+              if result['uid'] == found_file:
+                return_id = result['id']
+                continue
+
+        return return_id
+
+    def get_lowest_dashboard_id(self):
+        # Returns minimum id of any generated dashboard
+        # based on dashboard having a tag (generated_tag)
+        req = urllib.request.Request('http://' + self.grafana_url + '/api/search?query=%')
+        res = urllib.request.urlopen(req, timeout=5).read()
+        data = json.loads(res.decode())
+        min_id = 0
+        ids = []
+        for result in data:
+            if self.generated_tag in result['tags']:
+                ids.append(result['id'])
+        if len(ids) > 0:
+            ids.sort
+            min_id = ids[0]
+
+        return min_id
+
+
+    def set_default_dashboard(self, id):
+        # Sets the default dashboard to provided id
+        default_dashboard = {
+            'homeDashboardId': id,
+            'theme': "",
+            'timezone': ""
+        }
+
+        defaultjson = json.dumps(default_dashboard)
+        jsondatabytes = defaultjson.encode('utf-8')
+
+        req = urllib.request.Request('http://' + self.grafana_url + '/api/user/preferences', jsondatabytes, method='PUT')
+        req.add_header('Authorization', 'Bearer ' + self.apikey)
+        req.add_header('Accept', 'application/json')
+        req.add_header('Content-Type', 'application/json; charset=utf-8')
+        req.add_header('Content-Length', len(jsondatabytes))
+
+        try:
+            res = urllib.request.urlopen(req, timeout=5)
+            return True
+        except (urllib.error.HTTPError, urllib.error.URLError):
+            print(urllib.error)
+            pass
+            return False
+
+    def get_current_default_dashboard(self):
+        # Returns current default dashboard ID
+        req = urllib.request.Request('http://' + self.grafana_url + '/api/user/preferences')
+        res = urllib.request.urlopen(req, timeout=5).read()
+        data = json.loads(res.decode())
+        dash = data["homeDashboardId"]
+
+        return dash
+
+    def default_dashboard(self):
+        # Routine to set the default dashboard based on opinionated criteria
+        x = True
+        default_dash = self.get_current_default_dashboard()
+        provisioned = self.get_provisioning_dash()
+        if provisioned != 0:
+            if provisioned != default_dash:
+                print("Found provisioned dashboard ID {0} and setting as default.".format(provisioned))
+                x = self.set_default_dashboard(provisioned)
+        else:
+            if default_dash == 0:
+                min_dash = self.get_lowest_dashboard_id()
+                if min_dash > 0 and min_dash != default_dash:
+                    x = self.set_default_dashboard(min_dash)
+                    print("Set default dashboard to ID {0}.".format(min_dash))
+
+        if x != True:
+            print("Could not set default dashboard.")
+
+        return x
