@@ -1,4 +1,4 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python:3.7 as builder
 
 RUN install_packages \
       libfontconfig1
@@ -7,13 +7,61 @@ WORKDIR /usr/src/app
 COPY ./download.sh .
 RUN ./download.sh "%%BALENA_ARCH%%"
 
-RUN dpkg -i /tmp/grafana.deb && rm /tmp/grafana.deb
+
+RUN  dpkg -i /tmp/grafana.deb && rm /tmp/grafana.deb
 
 RUN pip install stringcase
 
+# install tools needed for dockerizing the app
+RUN install_packages git rsync binutils busybox-static file
+
+RUN pip install git+https://github.com/larsks/dockerize
+
+
+RUN dockerize -n --verbose -o /usr/src/app/output/ \
+      # create grafana user and group
+      -u grafana -g grafana \
+      # copy default configuration file (https://grafana.com/docs/grafana/latest/administration/configuration/#linux)
+      -a /etc/grafana/grafana.ini /etc/grafana/grafana.ini \
+      # include busybox to provide a shell
+      `which busybox` \
+      # include grafana-server
+      $(readlink -f $(which grafana-server))  \
+      # find location of libfontconfig1 shared libraries and include them
+      `dpkg -L libfontconfig1 | grep .so` \
+      # include python runtime
+      $(readlink -f $(which python))  
+
+# find the libz shared library needed by python (dockerize does not resolve this dependency)
+# this is located in arch-dependent folder, eg /lib/aarch64-linux-gnu , /lib/x86_64-linux-gnu, etc
+RUN cp $(find /lib -xdev -name libz.so.1) /usr/src/app/output$(find /lib -xdev -name libz.so.1)
+
+# copy symlinks to python
+RUN cp $(which python) $(readlink -f /usr/src/app/output/$(which python))
+RUN cp $(which python3) $(readlink -f /usr/src/app/output/$(which python3))
+
+
+RUN pip uninstall dockerize -y
+
+
+FROM scratch
+# copy dockerized contents
+COPY --from=builder /usr/src/app/output/ ./
+
+# copy grafana files
+COPY --from=builder /usr/share/grafana /usr/share/grafana
+
+# copy python modules and files
+COPY --from=builder /usr/local/lib/python3.7 /usr/local/lib/python3.7
+
 COPY ./provisioning /usr/share/grafana/conf/provisioning
+
 COPY templates ./templates
+
 COPY ./entry.sh .
+
 COPY ./*.py ./
 
-CMD ["/bin/sh","./entry.sh"]
+ENTRYPOINT ["/bin/busybox", "sh"]
+
+CMD ["./entry.sh"]
