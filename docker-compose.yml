@@ -1,0 +1,13 @@
+version: '2.1'
+
+volumes:
+    dashboard-data:
+
+services:
+  dashboard:
+    image: balenablocks/dashboard:raspberrypi3
+    restart: always
+    volumes:
+        - 'dashboard-data:/data'
+    ports:
+        - '80'
