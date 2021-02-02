@@ -1,14 +1,16 @@
-version: "2"
-slug: "dashboard"
 name: "dashboard"
+description: "A customizable data visualization tool with automatically generated dashboards."
 type: "sw.application"
 assets:
-  - url: "https://github.com/balenablocks/dashboard"
-    name: "repository"
-  - url: "https://raw.githubusercontent.com/balenablocks/dashboard/master/logo.png"
-    name: "logo"
+  repository:
+    type: "blob.asset"
+    data:
+      url: "https://github.com/balenablocks/dashboard"
+  logo:
+    type: "blob.asset"
+    data:
+      url: "https://raw.githubusercontent.com/balenablocks/dashboard/master/logo.png"
 data:
-  description: "A customizable data visualization tool with automatically generated dashboards."
   defaultDeviceType: "raspberrypi3"
   supportedDeviceTypes:
     - "raspberrypi4-64"
