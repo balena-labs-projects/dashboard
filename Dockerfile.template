@@ -13,7 +13,7 @@ RUN  dpkg -i /tmp/grafana.deb && rm /tmp/grafana.deb
 RUN pip install stringcase
 
 # install tools needed for dockerizing the app
-RUN install_packages git rsync binutils busybox-static file
+RUN install_packages git rsync binutils file
 
 RUN pip install git+https://github.com/larsks/dockerize
 
@@ -23,8 +23,6 @@ RUN dockerize -n --verbose -o /usr/src/app/output/ \
       -u grafana -g grafana \
       # copy default configuration file (https://grafana.com/docs/grafana/latest/administration/configuration/#linux)
       -a /etc/grafana/grafana.ini /etc/grafana/grafana.ini \
-      # include busybox to provide a shell
-      `which busybox` \
       # include grafana-server
       $(readlink -f $(which grafana-server))  \
       # find location of libfontconfig1 shared libraries and include them
@@ -44,7 +42,8 @@ RUN cp $(which python3) $(readlink -f /usr/src/app/output/$(which python3))
 RUN pip uninstall dockerize -y
 
 
-FROM scratch
+FROM arm32v5/busybox
+
 # copy dockerized contents
 COPY --from=builder /usr/src/app/output/ ./
 
@@ -62,6 +61,5 @@ COPY ./entry.sh .
 
 COPY ./*.py ./
 
-ENTRYPOINT ["/bin/busybox", "sh"]
 
-CMD ["./entry.sh"]
+CMD ["sh","./entry.sh"]
