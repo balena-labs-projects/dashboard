@@ -21,4 +21,4 @@ data:
     - raspberrypi3-64
     - raspberrypi400-64
     - nanopi-neo-air
-version: 0.1.1
+version: 1.0.0
