@@ -7,6 +7,10 @@ case $1 in
        ;;
    aarch64) package_file="grafana_${version}_arm64.deb"
        ;;
-   *) package_file="grafana_${version}_armhf.deb"
+   armv7hf) package_file="grafana_${version}_armhf.deb"
+       ;;
+   amd64) package_file="grafana_${version}_amd64.deb"
+       ;;
+   *) echo "unsupported architecture!"
 esac
 curl -s "${download_base}${package_file}" -o "${outfile}"
