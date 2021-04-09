@@ -25,6 +25,11 @@ RUN dockerize -n --verbose -o /usr/src/app/dockerized-grafana/ \
       # find location of libfontconfig1 shared libraries and include them
       `dpkg -L libfontconfig1 | grep .so`
 
+RUN if [ -d /usr/src/app/dockerized-grafana/lib64 ] ; then \
+      mv /usr/src/app/dockerized-grafana/lib64/* /usr/src/app/dockerized-grafana/lib/ && \
+      rm -rf /usr/src/app/dockerized-grafana/lib64 && \
+      ln -sf lib /usr/src/app/dockerized-grafana/lib64 ; done
+
 # install dependency needed by update-dashboard script
 RUN pip install -t /usr/src/python-packages/ stringcase
 
