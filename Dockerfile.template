@@ -1,57 +1,52 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python:3.7 as builder
+FROM balenalib/%%BALENA_ARCH%%-alpine-python:build as builder
 
-RUN install_packages \
-      libfontconfig1
+ARG NIX_VERSION=2.3.10
+RUN wget https://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz \
+    && tar xf nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz \
+    && addgroup -g 30000 -S nixbld \
+    && for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done \
+    && mkdir -m 0755 /etc/nix \
+    && echo 'sandbox = false' > /etc/nix/nix.conf \
+    && mkdir -m 0755 /nix && USER=root sh nix-${NIX_VERSION}-$(uname -m)-linux/install \
+    && ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/ \
+    && rm -r /nix-${NIX_VERSION}-$(uname -m)-linux* \
+    && rm -rf /var/cache/apk/* \
+    && /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old \
+    && /nix/var/nix/profiles/default/bin/nix-store --optimise \
+    && /nix/var/nix/profiles/default/bin/nix-store --verify --check-contents
+
+
+RUN pip install undocker
+ENV \
+    ENV=/etc/profile \
+    USER=root \
+    PATH=$PATH:/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:/bin:/sbin:/usr/bin:/usr/sbin \
+    GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt \
+    NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+    NIX_PATH=/nix/var/nix/profiles/per-user/root/channels
+
+RUN mkdir -p /output/store
+
+COPY dashboard.nix ./
+
+RUN nix-build dashboard.nix
+
+RUN mkdir -p /usr/src/rootfs
+
+
+
+RUN zcat result | undocker -o /usr/src/rootfs
+
+
+
+FROM scratch
+
+
+COPY --from=builder /usr/src/rootfs /
+
+
 
 WORKDIR /usr/src/app
-COPY ./download.sh .
-RUN ./download.sh "%%BALENA_ARCH%%"
-
-
-RUN  dpkg -i /tmp/grafana.deb && rm /tmp/grafana.deb
-
-RUN pip install stringcase
-
-# install tools needed for dockerizing the app
-RUN install_packages git rsync binutils file
-
-RUN pip install git+https://github.com/larsks/dockerize
-
-
-RUN dockerize -n --verbose -o /usr/src/app/output/ \
-      # create grafana user and group
-      -u grafana -g grafana \
-      # copy default configuration file (https://grafana.com/docs/grafana/latest/administration/configuration/#linux)
-      -a /etc/grafana/grafana.ini /etc/grafana/grafana.ini \
-      # include grafana-server
-      $(readlink -f $(which grafana-server))  \
-      # find location of libfontconfig1 shared libraries and include them
-      `dpkg -L libfontconfig1 | grep .so` \
-      # include python runtime
-      $(readlink -f $(which python))  
-
-# find the libz shared library needed by python (dockerize does not resolve this dependency)
-# this is located in arch-dependent folder, eg /lib/aarch64-linux-gnu , /lib/x86_64-linux-gnu, etc
-RUN cp $(find /lib -xdev -name libz.so.1) /usr/src/app/output$(find /lib -xdev -name libz.so.1)
-
-# copy symlinks to python
-RUN cp $(which python) $(readlink -f /usr/src/app/output/$(which python))
-RUN cp $(which python3) $(readlink -f /usr/src/app/output/$(which python3))
-
-
-RUN pip uninstall dockerize -y
-
-
-FROM arm32v5/busybox
-
-# copy dockerized contents
-COPY --from=builder /usr/src/app/output/ ./
-
-# copy grafana files
-COPY --from=builder /usr/share/grafana /usr/share/grafana
-
-# copy python modules and files
-COPY --from=builder /usr/local/lib/python3.7 /usr/local/lib/python3.7
 
 COPY ./provisioning /usr/share/grafana/conf/provisioning
 
@@ -62,4 +57,4 @@ COPY ./entry.sh .
 COPY ./*.py ./
 
 
-CMD ["sh","./entry.sh"]
+CMD ["/bin/bash","./entry.sh"]
