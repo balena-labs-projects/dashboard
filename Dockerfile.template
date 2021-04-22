@@ -1,41 +1,29 @@
-FROM balenalib/%%BALENA_ARCH%%-debian-python:3.7 as builder
 
-RUN install_packages \
-      libfontconfig1
+FROM balenalib/%%BALENA_ARCH%%-debian-python:3.7 AS grafana
 
-WORKDIR /usr/src/app
-COPY ./download.sh .
-RUN ./download.sh "%%BALENA_ARCH%%"
+WORKDIR /usr/share/grafana
 
-# install grafana
-RUN  dpkg -i /tmp/grafana.deb && rm /tmp/grafana.deb
+ARG BALENA_ARCH=%%BALENA_ARCH%%
+ARG GRAFANA_VERSION=7.5.3
+ARG GRAFANA_URL=https://dl.grafana.com/oss/release
 
-# install tools needed for dockerizing the app
-RUN install_packages git rsync binutils file
+# set pipefail before running shell commands with a pipe
+# https://github.com/hadolint/hadolint/wiki/DL4006
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN pip install git+https://github.com/larsks/dockerize
-
-RUN dockerize -n --verbose -o /usr/src/app/dockerized-grafana/ \
-      # create grafana user and group
-      -u grafana -g grafana \
-      # copy default configuration file (https://grafana.com/docs/grafana/latest/administration/configuration/#linux)
-      -a /etc/grafana/grafana.ini /etc/grafana/grafana.ini \
-      # include grafana-server
-      $(readlink -f $(which grafana-server))  \
-      # find location of libfontconfig1 shared libraries and include them
-      `dpkg -L libfontconfig1 | grep .so`
-
-RUN if [ -d /usr/src/app/dockerized-grafana/lib64 ] ; then \
-      mv /usr/src/app/dockerized-grafana/lib64/* /usr/src/app/dockerized-grafana/lib/ && \
-      rm -rf /usr/src/app/dockerized-grafana/lib64 && \
-      ln -sf lib /usr/src/app/dockerized-grafana/lib64 ; done
+# download and extract grafana
+RUN case "$BALENA_ARCH" in \
+        'rpi') GRAFANA_PACKAGE="grafana-${GRAFANA_VERSION}.linux-armv6.tar.gz" ;; \
+        'aarch64') GRAFANA_PACKAGE="grafana-${GRAFANA_VERSION}.linux-arm64.tar.gz" ;; \
+        'armv7hf') GRAFANA_PACKAGE="grafana-${GRAFANA_VERSION}.linux-armv7.tar.gz" ;; \
+        'amd64') GRAFANA_PACKAGE="grafana-${GRAFANA_VERSION}.linux-amd64.tar.gz" ;; \
+        *) echo >&2 "error: unsupported architecture ($BALENA_ARCH)"; exit 1 ;; \
+    esac && curl -L $GRAFANA_URL/$GRAFANA_PACKAGE | tar xzv --strip-components 1
 
 # install dependency needed by update-dashboard script
 RUN pip install -t /usr/src/python-packages/ stringcase
 
-RUN pip uninstall dockerize -y
-
-FROM klutchell/buildroot-rootfs-%%BALENA_ARCH%%:2020.11 as build
+FROM klutchell/buildroot-rootfs-%%BALENA_ARCH%%:2020.11 AS buildroot
 
 # copy buildroot package file
 COPY package.cfg ./package.cfg
@@ -59,16 +47,16 @@ RUN tar xpf /home/br-user/output/images/rootfs.tar -C /rootfs
 ###############################
 FROM scratch
 
-COPY --from=build rootfs/ /
+COPY --from=buildroot rootfs/ /
 
-# copy dockerized grafana
-COPY --from=builder /usr/src/app/dockerized-grafana/ /
+# copy grafana
+COPY --from=grafana /usr/share/grafana /usr/share/grafana
+# COPY --from=grafana /lib/ld-linux-aarch64.so.1 /lib/ld-linux-aarch64.so.1
 
 # copy python modules and files
-COPY --from=builder /usr/src/python-packages /usr/src/python-packages
+COPY --from=grafana /usr/src/python-packages /usr/src/python-packages
 
 # copy grafana files
-COPY --from=builder /usr/share/grafana /usr/share/grafana
 COPY ./provisioning /usr/share/grafana/conf/provisioning
 
 WORKDIR /usr/src/app
