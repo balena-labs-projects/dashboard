@@ -1,0 +1,60 @@
+FROM balenalib/%%BALENA_ARCH%%-alpine-python:build as builder
+
+ARG NIX_VERSION=2.3.10
+RUN wget https://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz \
+    && tar xf nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz \
+    && addgroup -g 30000 -S nixbld \
+    && for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done \
+    && mkdir -m 0755 /etc/nix \
+    && echo 'sandbox = false' > /etc/nix/nix.conf \
+    && mkdir -m 0755 /nix && USER=root sh nix-${NIX_VERSION}-$(uname -m)-linux/install \
+    && ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/ \
+    && rm -r /nix-${NIX_VERSION}-$(uname -m)-linux* \
+    && rm -rf /var/cache/apk/* \
+    && /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old \
+    && /nix/var/nix/profiles/default/bin/nix-store --optimise \
+    && /nix/var/nix/profiles/default/bin/nix-store --verify --check-contents
+
+
+RUN pip install undocker
+ENV \
+    ENV=/etc/profile \
+    USER=root \
+    PATH=$PATH:/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:/bin:/sbin:/usr/bin:/usr/sbin \
+    GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt \
+    NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+    NIX_PATH=/nix/var/nix/profiles/per-user/root/channels
+
+RUN mkdir -p /output/store
+
+COPY dashboard.nix ./
+
+RUN nix-build dashboard.nix
+
+RUN mkdir -p /usr/src/rootfs
+
+
+
+RUN zcat result | undocker -o /usr/src/rootfs
+
+
+
+FROM scratch
+
+
+COPY --from=builder /usr/src/rootfs /
+
+
+
+WORKDIR /usr/src/app
+
+COPY ./provisioning /usr/share/grafana/conf/provisioning
+
+COPY templates ./templates
+
+COPY ./entry.sh .
+
+COPY ./*.py ./
+
+
+CMD ["/bin/bash","./entry.sh"]
