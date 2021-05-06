@@ -2,32 +2,40 @@
 set -e
 
 function build_and_push_image () {
-  local DOCKER_REPO=$1
-  local BALENA_MACHINE_NAME=$2
-  local DOCKER_ARCH=$3
-  local BALENA_ARCH=$4
+  local BALENA_ARCH=$1
+  local PLATFORM=$2
 
-  echo "Building for machine name $BALENA_MACHINE_NAME, platform $DOCKER_ARCH, pushing to $DOCKER_REPO/dashboard"
+  TAG=$DOCKER_REPO/dashboard:$BALENA_ARCH-$VERSION
 
-  sed "s/%%BALENA_MACHINE_NAME%%/$BALENA_MACHINE_NAME/g" ./Dockerfile.template > ./Dockerfile.$BALENA_MACHINE_NAME
-  sed -i.bak "s/%%BALENA_ARCH%%/$BALENA_ARCH/g" ./Dockerfile.$BALENA_MACHINE_NAME && rm ./Dockerfile.$BALENA_MACHINE_NAME.bak
-  docker buildx build -t $DOCKER_REPO/dashboard:$BALENA_MACHINE_NAME --load --platform $DOCKER_ARCH --file Dockerfile.$BALENA_MACHINE_NAME .
+  echo "Building for $BALENA_ARCH, platform $PLATFORM, pushing to $TAG"
+  
+  docker buildx build . --pull \
+      --build-arg BALENA_ARCH=$BALENA_ARCH \
+      --platform $PLATFORM \
+      --file Dockerfile.template \
+      --tag $TAG --load
 
   echo "Publishing..."
-  docker push $DOCKER_REPO/dashboard:$BALENA_MACHINE_NAME
-
-  echo "Cleaning up..."
-  rm Dockerfile.$BALENA_MACHINE_NAME
+  docker push $TAG
 }
 
 function create_and_push_manifest() {
-  docker manifest create $DOCKER_REPO/dashboard:latest --amend $DOCKER_REPO/dashboard:raspberrypi3 --amend $DOCKER_REPO/dashboard:raspberrypi4-64
+  docker manifest create $DOCKER_REPO/dashboard:latest \
+  --amend $DOCKER_REPO/dashboard:aarch64-$VERSION \
+  --amend $DOCKER_REPO/dashboard:armv7hf-$VERSION \
+  --amend $DOCKER_REPO/dashboard:rpi-$VERSION \
+  --amend $DOCKER_REPO/dashboard:amd64-$VERSION \
+
   docker manifest push $DOCKER_REPO/dashboard:latest
 }
 
 # YOu can pass in a repo (such as a test docker repo) or accept the default
 DOCKER_REPO=${1:-balenablocks}
+VERSION=${2:-v0.0.0}
 
-build_and_push_image $DOCKER_REPO "raspberrypi4-64" "linux/arm64" "aarch64"
-build_and_push_image $DOCKER_REPO "raspberrypi3" "linux/arm/v7" "armv7hf"
+build_and_push_image "aarch64" "linux/arm64" 
+build_and_push_image "armv7hf" "linux/arm/v7" 
+build_and_push_image "rpi" "linux/arm/v6" 
+build_and_push_image "amd64" "linux/amd64"
+
 create_and_push_manifest
