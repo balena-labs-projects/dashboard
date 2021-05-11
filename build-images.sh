@@ -31,7 +31,7 @@ function create_and_push_manifest() {
 
 # YOu can pass in a repo (such as a test docker repo) or accept the default
 DOCKER_REPO=${1:-balenablocks}
-VERSION=${2:-v0.0.0}
+VERSION=${2:-$(<VERSION)}
 
 build_and_push_image "aarch64" "linux/arm64" 
 build_and_push_image "armv7hf" "linux/arm/v7" 
