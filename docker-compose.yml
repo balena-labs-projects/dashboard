@@ -7,7 +7,6 @@ volumes:
 services:
   dashboard:
     image: balenablocks/dashboard
-    build: ./
     restart: always
     volumes:
       - "dashboard-data:/data"
