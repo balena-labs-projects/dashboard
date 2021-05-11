@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "balenaBlocks dashboard version: $(<VERSION)"
+echo "balenaBlocks dashboard version: $(cat VERSION)"
 
 # configure Python packages PATH
 export PYTHONPATH=/usr/src/python-packages/
