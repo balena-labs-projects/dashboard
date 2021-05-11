@@ -1,57 +1,49 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-python:3.7 as builder
+ARG BALENA_ARCH=%%BALENA_ARCH%%
 
-RUN install_packages \
-      libfontconfig1
+FROM balenalib/$BALENA_ARCH-debian-python:3.7 as builder
+
+ARG BALENA_ARCH
 
 WORKDIR /usr/src/app
+
 COPY ./download.sh .
-RUN ./download.sh "%%BALENA_ARCH%%"
 
+# Download grafana deb file for current arch
+RUN  ./download.sh $BALENA_ARCH 
 
-RUN  dpkg -i /tmp/grafana.deb && rm /tmp/grafana.deb
+RUN mkdir -p /usr/src/debian-rootfs
 
-RUN pip install stringcase
+# used to resolve package dependencies
+RUN install_packages apt-rdepends
 
-# install tools needed for dockerizing the app
-RUN install_packages git rsync binutils file
+# Download required packages and dependencies
+# https://ostechnix.com/download-packages-dependencies-locally-ubuntu/
+RUN apt-get update && \
+      apt-get download \      
+      # libfontconfig1 \      
+      $(apt-rdepends python3  | grep -v "^ " | sed 's/debconf-2.0/debconf/g') \
+      $(apt-rdepends libfontconfig1  | grep -v "^ " | sed 's/fonts-freefont/fonts-freefont-otf/g' | sed 's/debconf-2.0/debconf/g')
 
-RUN pip install git+https://github.com/larsks/dockerize
+RUN cp /tmp/grafana.deb ./
 
+# install deb files to different directory
+RUN for pkg in *.deb; \
+      do dpkg-deb  -x $pkg /usr/src/debian-rootfs; \
+      done
 
-RUN dockerize -n --verbose -o /usr/src/app/output/ \
-      # create grafana user and group
-      -u grafana -g grafana \
-      # copy default configuration file (https://grafana.com/docs/grafana/latest/administration/configuration/#linux)
-      -a /etc/grafana/grafana.ini /etc/grafana/grafana.ini \
-      # include grafana-server
-      $(readlink -f $(which grafana-server))  \
-      # find location of libfontconfig1 shared libraries and include them
-      `dpkg -L libfontconfig1 | grep .so` \
-      # include python runtime
-      $(readlink -f $(which python))  
+WORKDIR /usr/src/app
 
-# find the libz shared library needed by python (dockerize does not resolve this dependency)
-# this is located in arch-dependent folder, eg /lib/aarch64-linux-gnu , /lib/x86_64-linux-gnu, etc
-RUN cp $(find /lib -xdev -name libz.so.1) /usr/src/app/output$(find /lib -xdev -name libz.so.1)
-
-# copy symlinks to python
-RUN cp $(which python) $(readlink -f /usr/src/app/output/$(which python))
-RUN cp $(which python3) $(readlink -f /usr/src/app/output/$(which python3))
-
-
-RUN pip uninstall dockerize -y
+# install dependency required by update-dashboard script
+RUN pip install -t /usr/src/python-packages  stringcase
 
 
 FROM arm32v5/busybox
 
-# copy dockerized contents
-COPY --from=builder /usr/src/app/output/ ./
-
-# copy grafana files
-COPY --from=builder /usr/share/grafana /usr/share/grafana
+# copy contents
+COPY --from=builder /usr/src/debian-rootfs ./
 
 # copy python modules and files
-COPY --from=builder /usr/local/lib/python3.7 /usr/local/lib/python3.7
+COPY --from=builder /usr/src/python-packages/ /usr/src/python-packages/
 
 COPY ./provisioning /usr/share/grafana/conf/provisioning
 
@@ -61,5 +53,6 @@ COPY ./entry.sh .
 
 COPY ./*.py ./
 
+COPY VERSION ./
 
 CMD ["sh","./entry.sh"]

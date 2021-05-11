@@ -1,13 +1,15 @@
-version: '2.1'
+version: "2.1"
 
 volumes:
-    dashboard-data:
+  dashboard-data:
+  sense-data: {}
 
 services:
   dashboard:
-    image: balenablocks/dashboard:raspberrypi3
+    image: balenablocks/dashboard
+    build: ./
     restart: always
     volumes:
-        - 'dashboard-data:/data'
+      - "dashboard-data:/data"
     ports:
-        - '80'
+      - "80"
