@@ -37,7 +37,7 @@ WORKDIR /usr/src/app
 RUN pip install -t /usr/src/python-packages  stringcase
 
 
-FROM arm32v5/busybox
+FROM busybox:stable
 
 # copy contents
 COPY --from=builder /usr/src/debian-rootfs ./
