@@ -55,4 +55,6 @@ COPY ./*.py ./
 
 COPY VERSION ./
 
+COPY bash.stub /bin/bash
+
 CMD ["sh","./entry.sh"]
