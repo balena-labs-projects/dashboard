@@ -1,0 +1,258 @@
+- commits:
+    - subject: renaming balenablocks to balena-labs-projects
+      hash: eaef519f9940b9ae230f78427d64ff98829e5f7c
+      body: ""
+      footer:
+        Signed-off-by: Flynn Joffray <flynn@balena.io>
+        signed-off-by: Flynn Joffray <flynn@balena.io>
+        Change-type: patch
+        change-type: patch
+      author: Flynn Joffray
+      nested: []
+  version: 1.1.5
+  title: ""
+  date: 2022-11-15T20:29:14.268Z
+- version: 1.1.4
+  date: 2021-05-13T07:28:58Z
+  commits:
+    - hash: d0c63e03da2bb21ca03463ccee5dd74f6acdc2e1
+      author: Rahul Thakoor
+      footers:
+        change-type: patch
+        signed-off-by: Rahul Thakoor <rahul@balena.io>
+      subject: Use multi-arch busybox image in final stage
+      body: null
+- version: 1.1.3
+- date: 2021-05-11T10:38:38Z
+- commits:
+    - hash: 4a63e15075970cca1526f70dc2aa074ee7ffe7ff
+- commits:
+    - author: Rahul Thakoor
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Rahul Thakoor <rahul@balena.io>
+- commits:
+    - subject: Use cat to read VERSION file
+- commits:
+    - body: null
+- version: 1.1.2
+- date: 2021-05-11T10:00:48Z
+- commits:
+    - hash: e980acb506a41e8f4f61c08d9d26519f809435bf
+- commits:
+    - author: Rahul Thakoor
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Rahul Thakoor <rahul@balena.io>
+- commits:
+    - subject: Read version from file
+- commits:
+    - body: null
+- version: 1.1.1
+- date: 2021-05-11T09:47:26Z
+- commits:
+    - hash: 0e9039b3dc2a6ceca753bbb14bc4ab481a1194aa
+- commits:
+    - author: Rahul Thakoor
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Rahul Thakoor <rahul@balena.io>
+- commits:
+    - subject: Fix readme and docker-compose file
+- commits:
+    - body: null
+- version: 1.1.0
+- date: 2021-05-11T09:31:59Z
+- commits:
+    - hash: 7494a567544cf89ab55934669e144c4646e65994
+- commits:
+    - author: Rahul Thakoor
+- commits:
+    - footers:
+        change-type: minor
+- commits:
+    - footers:
+        signed-off-by: Rahul Thakoor <rahul@balena.io>
+- commits:
+    - subject: Use dpkg to install required packages only
+- commits:
+    - body: null
+- version: 1.0.0
+- date: 2021-03-10T06:17:52Z
+- commits:
+    - hash: c4fca30197edebee0b7972db3a93ca3ac0bd656a
+- commits:
+    - author: Rahul Thakoor
+- commits:
+    - footers:
+        change-type: major
+- commits:
+    - footers:
+        signed-off-by: Rahul Thakoor <rahul@balena.io>
+- commits:
+    - subject: Reduce image size using dockerize
+- commits:
+    - body: null
+- commits:
+    - hash: f9a7b78aba339539d34ac6e95ee0a6a92e180017
+- commits:
+    - author: Rahul Thakoor
+- commits:
+    - footers:
+        change-type: major
+- commits:
+    - footers:
+        signed-off-by: Rahul Thakoor <rahul@balena.io>
+- commits:
+    - subject: Use busybox as final stage
+- commits:
+    - body: null
+- commits:
+    - hash: 271b269cb0081e4848844973e15f3f533ab261fc
+- commits:
+    - author: Phil Wilson
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Phil Wilson <phil@balena.io>
+- commits:
+    - subject: Add manifest tasks to build script
+- commits:
+    - body: null
+- version: 0.1.1
+- date: 2021-03-01T13:04:13Z
+- commits:
+    - hash: a6843e06200a5abfdd1a06fa4946017f9d27625d
+- commits:
+    - author: Tomás Migone
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Tomás Migone <tomas@balena.io>
+- commits:
+    - subject: "meta: force versionist to update balena.yml version"
+- commits:
+    - body: null
+- version: 0.1.0
+- date: 2021-02-26T14:06:50Z
+- commits:
+    - hash: a6727413716bcef36bc66d257dc29df44dece991
+- commits:
+    - author: Tomás Migone
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Tomás Migone <tomas@balena.io>
+- commits:
+    - subject: "meta: enable versionist"
+- commits:
+    - body: null
+- commits:
+    - hash: e185e0270c8e67544946f0f0385ed6658f50b030
+- commits:
+    - author: Tomás Migone
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Tomás Migone <tomas@balena.io>
+- commits:
+    - subject: "meta: enable version"
+- commits:
+    - body: null
+- commits:
+    - hash: d21ec1481f34fb69e9bf64d0d62a56496f52777a
+- commits:
+    - author: Phil Wilson
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Phil Wilson <phil@balena.io>
+- commits:
+    - subject: hub meta
+- commits:
+    - body: null
+- commits:
+    - hash: 820cce00ea3b63c824b46b524fb7145cd9507cb6
+- commits:
+    - author: Alan Boris
+- commits:
+    - subject: Add calls for setting default dashboard
+- commits:
+    - body: null
+- commits:
+    - hash: 012de381bd69e3557886609ef4b5aa74a84b07ce
+- commits:
+    - author: Alan Boris
+- commits:
+    - subject: Add default dashboard methods
+- commits:
+    - body: null
+- commits:
+    - hash: e5bcc917e0972a65f74ec53c80bd965a3e20aed9
+- commits:
+    - author: Alan Boris
+- commits:
+    - subject: Update grafana_dash_gen.py
+- commits:
+    - body: null
+- commits:
+    - hash: f5a0173b52dd88454de2a2d9aaa15356a2f25ecc
+- commits:
+    - author: Phil Wilson
+- commits:
+    - footers:
+        change-type: minor
+- commits:
+    - footers:
+        signed-off-by: Phil Wilson <phil@balena.io>
+- commits:
+    - subject: Delete existing dashboard API key if found
+- commits:
+    - body: null
+- commits:
+    - hash: 73691a6293d989c73685b4ebdb078a7342ba6c29
+- commits:
+    - author: Chris Crocker-White
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Chris Crocker-White <chriscw@balena.io>
+- commits:
+    - subject: Handle errors if influxdb has no schema
+- commits:
+    - body: null
+- commits:
+    - hash: e037fa59da1034f75a686d873613136227a1e629
+- commits:
+    - author: Phil
+- commits:
+    - footers:
+        change-type: patch
+- commits:
+    - footers:
+        signed-off-by: Phil Wilson <phil@balena.io>
+- commits:
+    - subject: Buildx script
+- commits:
+    - body: null
