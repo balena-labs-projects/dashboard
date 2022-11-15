@@ -2,7 +2,7 @@
 
 A customizable data visualization tool with automatically generated dashboards based on the discovered schema of an InfluxDB instance running on the same device.
 
-Dashboard is built to visualize your data with the minimum of effort, and can be used as part of your own projects or in combination with InfluxDB and [connector](https://github.com/balenablocks/connector) to quickly build a data capture and analysis tool.
+Dashboard is built to visualize your data with the minimum of effort, and can be used as part of your own projects or in combination with InfluxDB and [connector](https://github.com/balena-labs-projects/connector) to quickly build a data capture and analysis tool.
 
 ## Features
 
@@ -26,7 +26,7 @@ volumes:
 
 services:
   dashboard:
-    image: balenablocks/dashboard
+    image: bh.cr/balenalabs/dashboard
     restart: always
     volumes:
       - "dashboard-data:/data"
@@ -56,7 +56,7 @@ services:
 _Dockerfile_
 
 ```dockerfile
-FROM balenablocks/dashboard
+FROM bh.cr/balenalabs/dashboard
 ```
 
 ## Accessing

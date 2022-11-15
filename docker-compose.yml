@@ -6,7 +6,7 @@ volumes:
 
 services:
   dashboard:
-    image: balenablocks/dashboard
+    image: bh.cr/balenalabs/dashboard
     restart: always
     volumes:
       - "dashboard-data:/data"

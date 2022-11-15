@@ -7,11 +7,11 @@ assets:
   repository:
     type: blob.asset
     data:
-      url: 'https://github.com/balenablocks/dashboard'
+      url: 'https://github.com/balena-labs-projects/dashboard'
   logo:
     type: blob.asset
     data:
-      url: 'https://raw.githubusercontent.com/balenablocks/dashboard/master/logo.png'
+      url: 'https://raw.githubusercontent.com/balena-labs-projects/dashboard/master/logo.png'
 data:
   defaultDeviceType: raspberrypi3
   supportedDeviceTypes:
